@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0b0d0f;
+  --card: rgba(255, 255, 255, 0.04);
+  --card2: rgba(255, 255, 255, 0.07);
+  --line: rgba(255, 255, 255, 0.08);
+  --ink: #f4f6f8;
+  --mut: #6e7a88;
+  --acc: #00ffaa;
+  --acc2: #00ffaa;
+  --acc-ink: #000000;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 100% 0%, rgba(0, 255, 170, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(0, 255, 170, 0.08) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sh {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.animate-up {
+  animation: up 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.sk {
+  border-radius: 16px;
+  background: linear-gradient(90deg, var(--card) 25%, var(--card2) 50%, var(--card) 75%);
+  background-size: 200% 100%;
+  animation: sh 1.4s linear infinite;
+}

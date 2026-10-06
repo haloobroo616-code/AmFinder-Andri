@@ -1,0 +1,5 @@
+{
+  "name": "AM Preset Finder",
+  "description": "Find Alight Motion presets from TikTok videos easily by scanning descriptions, bios, and comments.",
+  "requestFramePermissions": []
+}
