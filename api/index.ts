@@ -3,7 +3,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
 
 async function startServer() {
   const app = express();
@@ -77,10 +79,9 @@ async function startServer() {
   });
 
   if (process.env.NODE_ENV === 'production') {
-    const distPath = path.resolve(__dirname, 'dist');
+    const distPath = path.resolve(rootDir, 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      // In Vercel or similar, we might need to handle the case where we are one level deep
       const indexPath = path.join(distPath, 'index.html');
       res.sendFile(indexPath);
     });
@@ -88,6 +89,7 @@ async function startServer() {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
+      root: rootDir,
     });
     app.use(vite.middlewares);
     
@@ -96,7 +98,7 @@ async function startServer() {
       const url = req.originalUrl;
       try {
         const fs = await import('fs');
-        let template = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
+        let template = fs.readFileSync(path.resolve(rootDir, 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
       } catch (e) {

@@ -15,6 +15,7 @@ interface PresetLink {
   size: string | null;
   ratio: string | null;
   author: string | null;
+  source?: string | null;
 }
 
 console.log('App rendering');
@@ -102,18 +103,27 @@ export default function App() {
   const KEEP_REGEX = /alightcreative\.com\/am\/share|drive\.google\.com\/(file|open|uc)|mediafire\.com|mega\.nz/i;
 
   function scanText(root: any) {
-    const found = new Map<string, string | null>();
-    const walk = (o: any) => {
+    const found = new Map<string, { label: string | null; source: string }>();
+    const walk = (o: any, keyName: string = '') => {
       if (typeof o === 'string') {
+        const source = /desc|caption|title/i.test(keyName)
+          ? 'deskripsi'
+          : /comment|msg|text/i.test(keyName)
+          ? 'komen'
+          : /bio|sign/i.test(keyName)
+          ? 'bio'
+          : 'lainnya';
         for (const m of o.matchAll(/https?:\/\/[^\s"'<>)\]]+/g)) {
           const u = m[0].replace(/[.,;:!?]+$/, '');
           const before = o.slice(Math.max(0, m.index! - 30), m.index);
           const lb = before.match(/(\d+(?:[.,]\d+)?\s?(?:MB|KB|GB)|XML|ZIP)\s*[:\-]?\s*$/i);
           const label = lb ? lb[1].replace(/\s/g, '').toUpperCase() : null;
-          if (!found.has(u) || (label && !found.get(u))) found.set(u, label);
+          if (!found.has(u) || (label && !found.get(u)?.label)) {
+            found.set(u, { label, source });
+          }
         }
       } else if (o && typeof o === 'object') {
-        Object.values(o).forEach(walk);
+        Object.entries(o).forEach(([k, v]) => walk(v, k));
       }
     };
     walk(root);
@@ -201,7 +211,10 @@ export default function App() {
 
     for (const u of texts.keys()) {
       if (KEEP_REGEX.test(u) && !have.has(u)) {
-        links.push(normalize(u));
+        const item = normalize(u);
+        const info = texts.get(u);
+        item.source = info?.source;
+        links.push(item);
         have.add(u);
       }
     }
@@ -209,7 +222,9 @@ export default function App() {
     const dup = new Set();
     links = links.filter((l: any) => !SKIP_REGEX.test(l.url) && !dup.has(l.url) && dup.add(l.url));
     links.forEach((l: any) => {
-      l.type = l.type || texts.get(l.url) || (/drive\.google\.com/i.test(l.url) ? 'XML' : null);
+      const info = texts.get(l.url);
+      l.type = l.type || info?.label || (/drive\.google\.com/i.test(l.url) ? 'XML' : null);
+      l.source = l.source || info?.source || 'lainnya';
     });
 
     return links;
@@ -404,6 +419,12 @@ export default function App() {
               <img src={coverSrc} alt="" className="w-full rounded-2xl bg-black aspect-video object-contain border border-gray-800 mb-6" />
             )}
 
+            {caption && (
+              <p className="mb-6 p-4 rounded-xl bg-[#121417] border border-gray-800 text-[13px] text-[var(--mut)] leading-relaxed italic">
+                {caption}
+              </p>
+            )}
+
             <div className="grid grid-cols-2 gap-3 mb-6">
               {stats.map((s, i) => (
                 <div key={i} className="bg-[#121417] border border-gray-800 p-3.5 rounded-xl">
@@ -433,7 +454,12 @@ export default function App() {
                     </div>
                     <div className="min-w-0">
                       <h4 className="font-bold text-sm mb-1 truncate">{l.title || 'Preset Alight Motion'}</h4>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {l.source && (
+                          <span className="text-[9px] font-bold text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded uppercase">
+                            DI {l.source}
+                          </span>
+                        )}
                         {l.type && <span className="text-[9px] font-bold text-[var(--acc)] bg-[var(--acc)]/10 px-2 py-0.5 rounded uppercase">{l.type}</span>}
                         {l.size && <span className="text-[9px] font-bold text-[var(--mut)] bg-gray-800 px-2 py-0.5 rounded uppercase">{l.size}</span>}
                       </div>
@@ -468,7 +494,7 @@ export default function App() {
               Tempel link TikTok dan dapatkan link preset Alight Motion yang tersembunyi di deskripsi, bio, komentar, dan balasan. Tanpa akun, tanpa iklan, tanpa pelacakan.
             </p>
             <div className="flex items-center gap-2 text-[var(--mut)] text-[13px]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.036 2.612.13 3.847.551V5.07c-1.026-.304-2.104-.334-3.145-.087-1.538.366-2.723 1.535-3.089 3.073-.247 1.04-.217 2.118.087 3.145H12.5l-.64 4.5h-4.5v12h-4.5V15.73l-.64-4.5h2.895c-.304-1.026-.334-2.104-.087-3.145.366-1.538 1.535-2.723 3.073-3.089 1.04-.247 2.118-.217 3.145.087V.57c-1.235-.42-2.537-.587-3.847-.551Z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.63.15-.16 2.71-2.48 2.76-2.67a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.78-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.21-1.13-.32-1.08-.68.02-.19.3-.39.81-.59 3.17-1.38 5.28-2.29 6.32-2.72 3.02-1.25 3.64-1.47 4.05-1.47.09 0 .29.02.42.12.11.08.14.19.15.3.01.06.01.12.01.19z"/></svg>
               @andrizxcll
             </div>
           </div>
