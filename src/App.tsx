@@ -457,7 +457,7 @@ export default function App() {
                       <div className="flex flex-wrap gap-2 mb-2">
                         {l.source && (
                           <span className="text-[9px] font-bold text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded uppercase">
-                            DI {l.source}
+                            Preset ditemukan di {l.source}
                           </span>
                         )}
                         {l.type && <span className="text-[9px] font-bold text-[var(--acc)] bg-[var(--acc)]/10 px-2 py-0.5 rounded uppercase">{l.type}</span>}
@@ -490,11 +490,12 @@ export default function App() {
               </div>
               <span className="text-xl font-bold">AM Preset Finder</span>
             </div>
-            <p className="text-[var(--mut)] text-[13px] leading-relaxed mb-6">
-              Tempel link TikTok dan dapatkan link preset Alight Motion yang tersembunyi di deskripsi, bio, komentar, dan balasan. Tanpa akun, tanpa iklan, tanpa pelacakan.
-            </p>
+            <div className="text-[var(--mut)] text-[13px] leading-relaxed mb-6 flex gap-3 items-start">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 text-[#24A1DE] mt-0.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.63.15-.16 2.71-2.48 2.76-2.67a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.78-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.21-1.13-.32-1.08-.68.02-.19.3-.39.81-.59 3.17-1.38 5.28-2.29 6.32-2.72 3.02-1.25 3.64-1.47 4.05-1.47.09 0 .29.02.42.12.11.08.14.19.15.3.01.06.01.12.01.19z"/></svg>
+              <span>Tempel link TikTok dan dapatkan link preset Alight Motion yang tersembunyi di deskripsi, bio, komentar, dan balasan. Tanpa akun, tanpa iklan, tanpa pelacakan.</span>
+            </div>
             <div className="flex items-center gap-2 text-[var(--mut)] text-[13px]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.63.15-.16 2.71-2.48 2.76-2.67a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.78-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.21-1.13-.32-1.08-.68.02-.19.3-.39.81-.59 3.17-1.38 5.28-2.29 6.32-2.72 3.02-1.25 3.64-1.47 4.05-1.47.09 0 .29.02.42.12.11.08.14.19.15.3.01.06.01.12.01.19z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-[#24A1DE]"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.63.15-.16 2.71-2.48 2.76-2.67a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.78-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.21-1.13-.32-1.08-.68.02-.19.3-.39.81-.59 3.17-1.38 5.28-2.29 6.32-2.72 3.02-1.25 3.64-1.47 4.05-1.47.09 0 .29.02.42.12.11.08.14.19.15.3.01.06.01.12.01.19z"/></svg>
               @andrizxcll
             </div>
           </div>

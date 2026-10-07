@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +28,7 @@ async function startServer() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       if (!res.body) throw new Error('Tidak ada response body');
 
-      const reader = res.body.getReader();
+      const reader = (res.body as any).getReader();
       const decoder = new TextDecoder();
       let buffer = '';
       let finalResult = null;
@@ -53,6 +52,7 @@ async function startServer() {
       if (!finalResult) return { status: false, message: 'Tidak ada hasil akhir diterima.' };
       return finalResult;
     } catch (error: any) {
+      console.error('Amfinder error:', error);
       return { status: false, message: error.message };
     }
   }
@@ -64,11 +64,12 @@ async function startServer() {
     const customHeader = req.headers['x-app-request'];
     
     // In production, we expect the request to come from our own domain
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
       const appUrl = process.env.APP_URL || '';
       const isSelfRequest = (referer && referer.includes(appUrl)) || (origin && origin.includes(appUrl));
       
-      if (!isSelfRequest && customHeader !== 'am-preset-finder-secure') {
+      // If APP_URL is not set, we skip referer check but still allow the custom header
+      if (appUrl && !isSelfRequest && customHeader !== 'am-preset-finder-secure') {
         return res.status(403).json({ status: false, message: 'Unauthorized request' });
       }
     }
@@ -78,38 +79,40 @@ async function startServer() {
     res.json(result);
   });
 
-  if (process.env.NODE_ENV === 'production') {
-    const distPath = path.resolve(rootDir, 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      const indexPath = path.join(distPath, 'index.html');
-      res.sendFile(indexPath);
-    });
-  } else {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-      root: rootDir,
-    });
-    app.use(vite.middlewares);
-    
-    // Explicitly handle root to ensure index.html is served
-    app.get('*', async (req, res, next) => {
-      const url = req.originalUrl;
-      try {
-        const fs = await import('fs');
-        let template = fs.readFileSync(path.resolve(rootDir, 'index.html'), 'utf-8');
-        template = await vite.transformIndexHtml(url, template);
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
-      } catch (e) {
-        next(e);
-      }
+  // Only handle static/vite in local development or if not on Vercel
+  if (!process.env.VERCEL) {
+    if (process.env.NODE_ENV === 'production') {
+      const distPath = path.resolve(rootDir, 'dist');
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    } else {
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'spa',
+        root: rootDir,
+      });
+      app.use(vite.middlewares);
+      
+      app.get('*', async (req, res, next) => {
+        const url = req.originalUrl;
+        try {
+          const fs = await import('fs');
+          let template = fs.readFileSync(path.resolve(rootDir, 'index.html'), 'utf-8');
+          template = await vite.transformIndexHtml(url, template);
+          res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+        } catch (e) {
+          next(e);
+        }
+      });
+    }
+
+    app.listen(Number(PORT), '0.0.0.0', () => {
+      console.log(`Server running at http://0.0.0.0:${PORT}`);
     });
   }
-
-  app.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`Server running at http://0.0.0.0:${PORT}`);
-  });
 
   return app;
 }
